@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KG Evaluator - Benchmark Platform</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="split-container">
+        
+        <div class="brand-side">
+            <div class="brand-content">
+                <div class="logo">KG<span>Evaluator</span></div>
+                <h1>Comparez vos modèles sémantiques.</h1>
+                <p>La plateforme standard pour évaluer vos performances sur CEA, CTA, CPA et RA face à l'état de l'art.</p>
+                
+                <div class="brand-items">
+                    <div class="item">✓ Support Wikidata & SEPSES</div>
+                    <div class="item">✓ Calcul local sécurisé</div>
+                    <div class="item">✓ Comparaison Graphique Instantanée</div>
+                </div>
+            </div>
+            <div class="brand-copyright">© 2026 KG Evaluator Project</div>
+        </div>
+
+        <div class="form-side">
+            <div class="mobile-brand">KG<span>Evaluator</span></div>
+
+            <div class="form-wrapper">
+                
+                <div class="stepper">
+                    <div class="step active" id="step1">1. Config</div>
+                    <div class="line"></div>
+                    <div class="step" id="step2">2. Upload</div>
+                    <div class="line"></div>
+                    <div class="step" id="step3">3. Résultats</div>
+                </div>
+
+                <div class="form-card">
+                    
+                    <section id="setupSection" class="active-section fade-in">
+                        <div class="section-header">
+                            <h2>Configuration</h2>
+                            <p>Identifiez votre équipe et le contexte.</p>
+                        </div>
+
+                        <form id="setupForm">
+                            <div class="form-group">
+                                <label>Nom de l'équipe / Modèle</label>
+                                <input type="text" id="teamName" placeholder="Ex: Team Alpha v2" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Knowledge Graph (KG) Cible</label>
+                                <div class="kg-grid">
+                                    <label class="kg-card">
+                                        <input type="radio" name="kg" value="Wikidata" checked>
+                                        <div class="kg-content">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Wikidata-logo-en.svg/200px-Wikidata-logo-en.svg.png" alt="Wikidata" class="kg-logo">
+                                            <span>Wikidata</span>
+                                        </div>
+                                    </label>
+                                    <label class="kg-card">
+                                        <input type="radio" name="kg" value="SEPSES">
+                                        <div class="kg-content">
+                                            <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png" alt="SEPSES" class="kg-logo" style="opacity:0.6;">
+                                            <span>SEPSES</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tâches à évaluer</label>
+                                <div class="task-grid">
+                                    <label class="task-card">
+                                        <input type="checkbox" name="tasks" value="CEA">
+                                        <div class="task-content"><span class="task-icon">⊞</span><span>CEA</span></div>
+                                    </label>
+                                    <label class="task-card">
+                                        <input type="checkbox" name="tasks" value="CTA">
+                                        <div class="task-content"><span class="task-icon">T</span><span>CTA</span></div>
+                                    </label>
+                                    <label class="task-card">
+                                        <input type="checkbox" name="tasks" value="CPA">
+                                        <div class="task-content"><span class="task-icon">⇄</span><span>CPA</span></div>
+                                    </label>
+                                    <label class="task-card">
+                                        <input type="checkbox" name="tasks" value="RA">
+                                        <div class="task-content"><span class="task-icon">≣</span><span>RA</span></div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-primary" onclick="goToUpload()">Suivant →</button>
+                        </form>
+                    </section>
+
+                    <section id="uploadSection" style="display:none;">
+                        <div class="section-header">
+                            <button class="btn-back" onclick="resetEvaluation()">← Retour</button>
+                            <h2>Soumission</h2>
+                            <p>Chargez la Vérité Terrain (GT) et vos Résultats.</p>
+                        </div>
+
+                        <div id="dynamicUploadContainer"></div>
+                        <div id="errorMsg" class="error-box" style="display:none;"></div>
+
+                        <button class="btn-primary" onclick="processEvaluation()">Lancer l'Évaluation</button>
+                    </section>
+
+                    <section id="dashboardSection" style="display:none;">
+                        <div class="section-header">
+                            <h2>Performance Comparée</h2>
+                            <p>Résultats pour <span id="resTeamName" style="color:#004e92; font-weight:700;"></span></p>
+                        </div>
+
+                        <div id="resultsContainer"></div>
+                        
+                        <button class="btn-secondary" onclick="resetEvaluation()">Nouvelle Session</button>
+                    </section>
+
+                </div>
+
+                <footer class="form-footer">
+                    <p>Propulsé par <a href="#">KG Evaluator</a> • Hébergé sur Firebase</p>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
