@@ -1,144 +1,284 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KG Evaluator - Benchmark Platform</title>
-    
+    <title>KG Evaluator</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- Firebase (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-    <div class="split-container">
-        
-        <div class="brand-side">
-            <div class="brand-content">
-                <div class="logo">KG<span>Evaluator</span></div>
-                <h1>Comparez vos modèles sémantiques.</h1>
-                <p>La plateforme standard pour évaluer vos performances sur CEA, CTA, CPA et RA face à l'état de l'art.</p>
-                
-                <div class="brand-items">
-                    <div class="item">✓ Support Wikidata & SEPSES</div>
-                    <div class="item">✓ Calcul local sécurisé</div>
-                    <div class="item">✓ Comparaison Graphique Instantanée</div>
-                </div>
+    <!-- BACKGROUND EFFECTS -->
+    <div class="bg-glow bg-top-left"></div>
+    <div class="bg-glow bg-bottom-right"></div>
+
+    <!-- HEADER (KG Evaluator) -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="logo">
+                <span style="color:#dc2626; font-size:1.5rem;">📊</span>
+                <span class="logo-text">KG Evaluator</span>
             </div>
-            <div class="brand-copyright">© 2026 KG Evaluator Project</div>
-        </div>
-
-        <div class="form-side">
-            <div class="mobile-brand">KG<span>Evaluator</span></div>
-
-            <div class="form-wrapper">
-                
-                <div class="stepper">
-                    <div class="step active" id="step1">1. Config</div>
-                    <div class="line"></div>
-                    <div class="step" id="step2">2. Upload</div>
-                    <div class="line"></div>
-                    <div class="step" id="step3">3. Résultats</div>
-                </div>
-
-                <div class="form-card">
-                    
-                    <section id="setupSection" class="active-section fade-in">
-                        <div class="section-header">
-                            <h2>Configuration</h2>
-                            <p>Identifiez votre équipe et le contexte.</p>
-                        </div>
-
-                        <form id="setupForm">
-                            <div class="form-group">
-                                <label>Nom de l'équipe / Modèle</label>
-                                <input type="text" id="teamName" placeholder="Ex: Team Alpha v2" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Knowledge Graph (KG) Cible</label>
-                                <div class="kg-grid">
-                                    <label class="kg-card">
-                                        <input type="radio" name="kg" value="Wikidata" checked>
-                                        <div class="kg-content">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Wikidata-logo-en.svg/200px-Wikidata-logo-en.svg.png" alt="Wikidata" class="kg-logo">
-                                            <span>Wikidata</span>
-                                        </div>
-                                    </label>
-                                    <label class="kg-card">
-                                        <input type="radio" name="kg" value="SEPSES">
-                                        <div class="kg-content">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png" alt="SEPSES" class="kg-logo" style="opacity:0.6;">
-                                            <span>SEPSES</span>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Tâches à évaluer</label>
-                                <div class="task-grid">
-                                    <label class="task-card">
-                                        <input type="checkbox" name="tasks" value="CEA">
-                                        <div class="task-content"><span class="task-icon">⊞</span><span>CEA</span></div>
-                                    </label>
-                                    <label class="task-card">
-                                        <input type="checkbox" name="tasks" value="CTA">
-                                        <div class="task-content"><span class="task-icon">T</span><span>CTA</span></div>
-                                    </label>
-                                    <label class="task-card">
-                                        <input type="checkbox" name="tasks" value="CPA">
-                                        <div class="task-content"><span class="task-icon">⇄</span><span>CPA</span></div>
-                                    </label>
-                                    <label class="task-card">
-                                        <input type="checkbox" name="tasks" value="RA">
-                                        <div class="task-content"><span class="task-icon">≣</span><span>RA</span></div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <button type="button" class="btn-primary" onclick="goToUpload()">Suivant →</button>
-                        </form>
-                    </section>
-
-                    <section id="uploadSection" style="display:none;">
-                        <div class="section-header">
-                            <button class="btn-back" onclick="resetEvaluation()">← Retour</button>
-                            <h2>Soumission</h2>
-                            <p>Chargez la Vérité Terrain (GT) et vos Résultats.</p>
-                        </div>
-
-                        <div id="dynamicUploadContainer"></div>
-                        <div id="errorMsg" class="error-box" style="display:none;"></div>
-
-                        <button class="btn-primary" onclick="processEvaluation()">Lancer l'Évaluation</button>
-                    </section>
-
-                    <section id="dashboardSection" style="display:none;">
-                        <div class="section-header">
-                            <h2>Performance Comparée</h2>
-                            <p>Résultats pour <span id="resTeamName" style="color:#004e92; font-weight:700;"></span></p>
-                        </div>
-
-                        <div id="resultsContainer"></div>
-                        
-                        <button class="btn-secondary" onclick="resetEvaluation()">Nouvelle Session</button>
-                    </section>
-
-                </div>
-
-                <footer class="form-footer">
-                    <p>Propulsé par <a href="#">KG Evaluator</a> • Hébergé sur Firebase</p>
-                </footer>
-
+            <!-- Search bar visual only (as requested) -->
+            <div class="search-bar">
+                <span>🔍</span>
+                <input type="text" placeholder="Rechercher une équipe..." class="search-input">
             </div>
         </div>
-    </div>
+        <div class="header-right">
+            <a href="javascript:void(0)"
+                onclick="switchTab('overview', document.querySelector('.nav-tab:nth-child(1)'))"
+                class="nav-link">Challenge</a>
+            <span class="divider">|</span>
+            <button class="btn-outline" onclick="alert('Module de connexion bientôt disponible')">Connexion</button>
+            <button class="btn-solid" onclick="alert('Inscriptions fermées pour le Round 1')">S'inscrire</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="app-container">
+
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <span class="challenge-badge">Round 1 : Terminée</span>
+            <div class="hero-header">
+                <h1 class="hero-title">KG Evaluator 2026</h1>
+                <p class="hero-subtitle">Semantic Web Challenge : Alignement Tabulaire vers Knowledge Graph</p>
+            </div>
+
+            <div class="hero-meta">
+                <div class="meta-item"><span style="font-size:1.2rem">👥</span> <span id="stat-teams">0</span>
+                    Participants</div>
+                <div class="meta-item"><span style="font-size:1.2rem">🔥</span> <span id="stat-subs">0</span>
+                    Soumissions</div>
+                <div class="meta-item"><span style="font-size:1.2rem">⏳</span> Status: <span class="challenge-badge"
+                        style="margin:0 0 0 5px; background:#e0f2fe; color:#0369a1;">Ouvert</span></div>
+            </div>
+        </section>
+
+        <!-- NAVIGATION TABS -->
+        <nav class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('overview', this)">Présentation & Soumission</div>
+            <div class="nav-tab" onclick="switchTab('rules', this)">Règlement (Rules)</div>
+            <div class="nav-tab" onclick="switchTab('leaderboard', this)">Leaderboard Global</div>
+        </nav>
+
+        <!-- VIEW: OVERVIEW (Dashboard) -->
+        <div id="view-overview" class="dashboard-layout">
+
+            <!-- LEFT COLUMN: SUBMISSION FORM -->
+            <div class="column-form">
+                <div class="glass form-card">
+                    <h2>🚀 Soumettre une solution</h2>
+
+                    <div class="input-group">
+                        <label>Nom de l'équipe</label>
+                        <input type="text" id="team-name" placeholder="Ex: Team Semantic" required>
+                    </div>
+
+                    <div class="row-group">
+                        <div class="input-group half">
+                            <label>Graphe Cible</label>
+                            <div class="radio-pill-group">
+                                <label><input type="radio" name="kg" value="Wikidata" checked
+                                        onchange="appState.kg=this.value"> Wikidata</label>
+                                <label><input type="radio" name="kg" value="SEPSES" onchange="appState.kg=this.value">
+                                    SEPSES</label>
+                            </div>
+                        </div>
+                        <div class="input-group half">
+                            <label>Tâches (Choix multiple)</label>
+                            <div class="radio-pill-group">
+                                <label><input type="checkbox" name="task" value="CEA" checked> CEA</label>
+                                <label><input type="checkbox" name="task" value="CTA"> CTA</label>
+                                <label><input type="checkbox" name="task" value="CPA"> CPA</label>
+                                <label><input type="checkbox" name="task" value="RA"> RA</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upload-zone compact" id="drop-zone">
+                        <p>Fichier CSV (.csv)</p>
+                        <input type="file" id="submission-file" accept=".csv" onchange="handleFileSelect(this)">
+                        <div id="file-name" class="file-name sm">Aucun fichier choisi</div>
+                    </div>
+
+                    <div id="error-box" class="error-box" style="display:none;"></div>
+
+                    <button class="btn-primary full-width" onclick="runEvaluation()" id="btn-eval">
+                        Calculer mes Scores
+                    </button>
+
+                    <!-- RESULTS -->
+                    <div id="local-results"
+                        style="display:none; margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
+                        <h3>Résultats Locaux</h3>
+                        <div class="mini-metrics">
+                            <div><span class="label">F1 Score</span> <strong id="res-f1"
+                                    style="color:var(--text-main)">-</strong></div>
+                            <div><span class="label">Precision</span> <strong id="res-prec"
+                                    style="color:var(--text-main)">-</strong></div>
+                            <div><span class="label">Recall</span> <strong id="res-rec"
+                                    style="color:var(--text-main)">-</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: LEADERBOARD & VISUALIZATION -->
+            <div class="column-leaderboard">
+                <div class="glass lb-card">
+                    <div class="lb-header-row">
+                        <h2>🏆 Classement (Top 10)</h2>
+                        <button class="btn-sm" onclick="refreshLeaderboard()">Rafraîchir</button>
+                    </div>
+
+                    <div class="filters-row">
+                        <select id="lb-kg" onchange="refreshLeaderboard()">
+                            <option value="Wikidata">Wikidata</option>
+                            <option value="SEPSES">SEPSES</option>
+                        </select>
+                        <select id="lb-task" onchange="refreshLeaderboard()">
+                            <option value="CEA">CEA</option>
+                            <option value="CTA">CTA</option>
+                            <option value="CPA">CPA</option>
+                            <option value="RA">RA</option>
+                        </select>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="lb-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Équipe</th>
+                                    <th>F1 Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lb-body"></tbody>
+                        </table>
+                        <div id="lb-empty" class="empty-state" style="display:none;">
+                            Aucune soumission pour l'instant.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHART -->
+                <div class="glass chart-card" style="margin-top:20px;">
+                    <h3>📊 Comparaison</h3>
+                    <div class="chart-wrapper" style="height: 100%; min-height: 200px; position:relative;">
+                        <canvas id="comparisonChart"></canvas>
+                        <div id="chart-placeholder" class="chart-placeholder"
+                            style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.03); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <span>En attente de résultat...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: RULES -->
+        <div id="view-rules" class="dashboard-layout" style="display:none; grid-template-columns: 1fr;">
+            <div class="glass" style="padding:40px;">
+                <h2>📜 Règlement du Challenge KG Evaluator</h2>
+                <div style="line-height:1.6; color:var(--text-main);">
+                    <p><strong>Contexte :</strong> Ce challenge évalue la capacité des systèmes à annoter sémantiquement
+                        des données tabulaires.</p>
+                    <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+
+                    <h3>Les Tâches</h3>
+                    <ul style="margin-bottom:20px;">
+                        <li><strong>CEA (Cell Entity Annotation)</strong> : Associer une cellule à une entité du KG.
+                            <br><em>Format : tab_id, row_id, col_id, entity_url</em>
+                        </li>
+                        <li><strong>CTA (Column Type Annotation)</strong> : Associer une colonne à une classe du KG.
+                            <br><em>Format : tab_id, col_id, class_url</em>
+                        </li>
+                        <li><strong>CPA (Column Property Annotation)</strong> : Identifier la relation entre deux
+                            colonnes. <br><em>Format : tab_id, col1_id, col2_id, property_url</em></li>
+                        <li><strong>RA (Row Annotation)</strong> : Associer une ligne entière à une entité.
+                            <br><em>Format : tab_id, row_id, entity_url</em>
+                        </li>
+                    </ul>
+
+                    <h3>Évaluation</h3>
+                    <p>Le système calcule automatiquement la <strong>Précision</strong>, le <strong>Rappel</strong> et
+                        le <strong>Score F1</strong>. <br>
+                        Le classement final est basé sur le Score F1.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: LEADERBOARD ONLY (Alternative view if needed, or redirect to main) -->
+        <div id="view-leaderboard" class="dashboard-layout" style="display:none; grid-template-columns: 1fr;">
+            <div class="glass">
+                <h2>🏆 Leaderboard Global</h2>
+                <p>Consultez le classement complet sur le tableau de bord principal.</p>
+                <button class="btn-primary" style="width:auto;"
+                    onclick="switchTab('overview', document.querySelector('.nav-tab:nth-child(1)'))">Retour au
+                    Dashboard</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER (KG Evaluator Specific) -->
+    <footer class="ai-footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <div class="logo">
+                    <span style="color:#dc2626; font-size:1.5rem;">📊</span>
+                    <span class="logo-text" style="color:white;">KG Evaluator</span>
+                </div>
+                <p style="font-size:0.85rem; color:#6b7280; margin-top:10px;">
+                    Plateforme d'évaluation sémantique pour les tâches SemTab (CEA, CTA, CPA, RA).
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <h4>CHALLENGE</h4>
+                <a href="javascript:void(0)"
+                    onclick="switchTab('overview', document.querySelector('.nav-tab:nth-child(1)'))">Soumettre</a>
+                <a href="javascript:void(0)"
+                    onclick="switchTab('rules', document.querySelector('.nav-tab:nth-child(2)'))">Règlement</a>
+                <a href="javascript:void(0)"
+                    onclick="switchTab('overview', document.querySelector('.nav-tab:nth-child(1)'))">Classement</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>RESSOURCES</h4>
+                <a href="https://www.wikidata.org/" target="_blank">Wikidata ↗</a>
+                <a href="#" target="_blank">Ontologie SEPSES ↗</a>
+                <a href="http://www.sem-tab.org/" target="_blank">SemTab Challenge ↗</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>CONTACT</h4>
+                <a href="#">Support Technique</a>
+                <a href="#">Organisateurs</a>
+                <a href="https://github.com/" target="_blank">GitHub Repo ↗</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 KG Evaluator. Fait avec ❤️ pour le Web Sémantique.</p>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
+
 </html>
