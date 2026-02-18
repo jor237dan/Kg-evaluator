@@ -121,8 +121,8 @@ Objectif : passer du cadrage (v0.1) à l’exécution produit en 2 semaines.
 
 ## 8) Prochaine sortie documentaire recommandée
 Après validation de ce v0.2, produire :
-1. `DATA_MODEL_V0.1.md` (schéma DB minimal)
-2. `API_SPEC_V0.1.md` (endpoints MVP)
+1. ✅ `DATA_MODEL_V0.1.md` (schéma DB minimal)
+2. ✅ `API_SPEC_V0.1.md` (endpoints MVP)
 3. `PROMPTS_PEDAGO_V0.1.md` (prompts quiz/résumé/explication)
 
 ---
