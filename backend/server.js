@@ -86,6 +86,25 @@ function route(req, res) {
     }
   }
 
+  if (req.method === 'GET' && pathname === '/project-status') {
+    const status = {
+      projectPath: process.cwd(),
+      docs: {
+        cahier: fs.existsSync(path.join(__dirname, '..', 'CAHIER_DES_CHARGES_V0.1.md')),
+        plan: fs.existsSync(path.join(__dirname, '..', 'PLAN_ACTION_V0.2.md')),
+        dataModel: fs.existsSync(path.join(__dirname, '..', 'DATA_MODEL_V0.1.md')),
+        apiSpec: fs.existsSync(path.join(__dirname, '..', 'API_SPEC_V0.1.md')),
+        prompts: fs.existsSync(path.join(__dirname, '..', 'PROMPTS_PEDAGO_V0.1.md'))
+      },
+      app: {
+        demoUi: 'http://localhost:' + PORT + '/',
+        health: 'http://localhost:' + PORT + '/health'
+      },
+      timestamp: new Date().toISOString()
+    };
+    return send(res, 200, status);
+  }
+
   if (req.method === 'GET' && pathname === '/health') {
     return send(res, 200, { status: 'ok' });
   }

@@ -8,6 +8,12 @@ Serveur HTTP minimal sans dépendances externes, aligné sur `API_SPEC_V0.1.md`.
 node backend/server.js
 ```
 
+Ou avec le script helper:
+
+```bash
+bash scripts/start-demo.sh
+```
+
 Par défaut: `http://localhost:8787`
 
 ## Voir le travail dans le web
@@ -23,6 +29,12 @@ Tu auras une interface de démo pour tester:
 - génération quiz,
 - tentative quiz,
 - progression.
+
+## Voir l'état global du projet
+
+```text
+http://localhost:8787/project-status
+```
 
 ## Endpoint de santé
 
