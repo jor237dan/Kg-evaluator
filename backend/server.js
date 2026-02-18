@@ -1,6 +1,8 @@
 const http = require('http');
 const { URL } = require('url');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = process.env.PORT || 8787;
 
@@ -71,6 +73,18 @@ function requireAuth(req, res) {
 function route(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const { pathname } = url;
+
+
+  if (req.method === 'GET' && (pathname === '/' || pathname === '/index.html')) {
+    const filePath = path.join(__dirname, 'public', 'index.html');
+    try {
+      const html = fs.readFileSync(filePath, 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(html);
+    } catch (err) {
+      return send(res, 500, { error: 'INTERNAL_SERVER_ERROR' });
+    }
+  }
 
   if (req.method === 'GET' && pathname === '/health') {
     return send(res, 200, { status: 'ok' });

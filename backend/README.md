@@ -10,6 +10,20 @@ node backend/server.js
 
 Par défaut: `http://localhost:8787`
 
+## Voir le travail dans le web
+Ouvre simplement dans ton navigateur :
+
+```text
+http://localhost:8787/
+```
+
+Tu auras une interface de démo pour tester:
+- register/login,
+- matières/chapitres/résumé,
+- génération quiz,
+- tentative quiz,
+- progression.
+
 ## Endpoint de santé
 
 ```bash
