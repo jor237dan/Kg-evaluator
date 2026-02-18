@@ -123,7 +123,7 @@ Objectif : passer du cadrage (v0.1) à l’exécution produit en 2 semaines.
 Après validation de ce v0.2, produire :
 1. ✅ `DATA_MODEL_V0.1.md` (schéma DB minimal)
 2. ✅ `API_SPEC_V0.1.md` (endpoints MVP)
-3. `PROMPTS_PEDAGO_V0.1.md` (prompts quiz/résumé/explication)
+3. ✅ `PROMPTS_PEDAGO_V0.1.md` (prompts quiz/résumé/explication)
 
 ---
 Version évolutive : ce plan est ajustable après les 5 à 10 premiers retours élèves.
