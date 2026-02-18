@@ -118,3 +118,7 @@ Ce cahier des charges est une version v0.1. Il est volontairement évolutif et s
 - contraintes techniques,
 - priorités produit,
 - retours pédagogiques.
+
+
+## 13) Suite immédiate (référence v0.2)
+La suite opérationnelle du projet est documentée dans `PLAN_ACTION_V0.2.md` (priorités, chapitres initiaux, user stories, backlog sprint 1).
