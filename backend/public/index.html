@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP Révision IA - Demo Web</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:900px;margin:30px auto;padding:0 16px;background:#f7f7fb;color:#222}
+    .card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:16px;margin-bottom:14px}
+    h1{font-size:24px}
+    input,select,button{padding:8px;margin:4px 0;border:1px solid #ccc;border-radius:6px}
+    button{background:#2563eb;color:white;border:none;cursor:pointer}
+    button.secondary{background:#4b5563}
+    pre{background:#111827;color:#e5e7eb;padding:10px;border-radius:8px;overflow:auto;max-height:280px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .muted{color:#666;font-size:13px}
+  </style>
+</head>
+<body>
+  <h1>Plateforme de Révision IA — Démo Web</h1>
+  <p class="muted">Interface de test rapide du backend MVP.</p>
+  <p class="muted">Statut projet: <a href="/project-status" target="_blank">/project-status</a></p>
+
+  <div class="card">
+    <h3>1) Authentification</h3>
+    <div class="row">
+      <input id="email" placeholder="email" value="demo@example.com" />
+      <input id="password" type="password" placeholder="password" value="pass123" />
+      <input id="fullName" placeholder="Nom complet" value="Demo User" />
+    </div>
+    <div class="row">
+      <button id="registerBtn">Register</button>
+      <button id="loginBtn">Login</button>
+      <button class="secondary" id="meBtn">Auth Me</button>
+    </div>
+    <div>Token: <code id="tokenLabel">(none)</code></div>
+  </div>
+
+  <div class="card">
+    <h3>2) Explorer les matières et chapitres</h3>
+    <div class="row">
+      <button id="subjectsBtn">Charger matières</button>
+      <button id="chaptersBtn">Charger chapitres</button>
+      <button id="summaryBtn">Résumé chap-1</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3) Quiz rapide</h3>
+    <div class="row">
+      <button id="generateQuizBtn">Générer quiz chap-1</button>
+      <button id="getQuizBtn">Lire quiz</button>
+      <button id="submitAttemptBtn">Soumettre tentative</button>
+      <button id="progressBtn">Voir progression</button>
+    </div>
+    <div>Quiz ID: <code id="quizIdLabel">(none)</code></div>
+  </div>
+
+  <div class="card">
+    <h3>Réponse API</h3>
+    <pre id="output">Prêt.</pre>
+  </div>
+
+  <script>
+    let token = '';
+    let quizId = '';
+    const output = document.getElementById('output');
+    const tokenLabel = document.getElementById('tokenLabel');
+    const quizIdLabel = document.getElementById('quizIdLabel');
+
+    function show(data){ output.textContent = JSON.stringify(data, null, 2); }
+
+    async function api(path, {method='GET', body, auth=false}={}) {
+      const headers = {'Content-Type':'application/json'};
+      if (auth && token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      const json = await res.json().catch(()=>({error:'INVALID_JSON'}));
+      return { status: res.status, data: json };
+    }
+
+    registerBtn.onclick = async () => {
+      const r = await api('/api/v1/auth/register', {method:'POST', body:{email:email.value,password:password.value,fullName:fullName.value}});
+      if (r.data.token) { token = r.data.token; tokenLabel.textContent = token.slice(0,12)+'...'; }
+      show(r);
+    };
+
+    loginBtn.onclick = async () => {
+      const r = await api('/api/v1/auth/login', {method:'POST', body:{email:email.value,password:password.value}});
+      if (r.data.token) { token = r.data.token; tokenLabel.textContent = token.slice(0,12)+'...'; }
+      show(r);
+    };
+
+    meBtn.onclick = async () => show(await api('/api/v1/auth/me', {auth:true}));
+    subjectsBtn.onclick = async () => show(await api('/api/v1/subjects?lang=fr'));
+    chaptersBtn.onclick = async () => show(await api('/api/v1/chapters?subjectId=sub-math&classLevel=Terminale&educationTrack=francophone&lang=fr'));
+    summaryBtn.onclick = async () => show(await api('/api/v1/chapters/chap-1/summary?lang=fr&mode=short'));
+
+    generateQuizBtn.onclick = async () => {
+      const r = await api('/api/v1/chapters/chap-1/quizzes/generate', {method:'POST', auth:true, body:{lang:'fr',level:'medium',questionCount:8}});
+      if (r.data.quizId) { quizId = r.data.quizId; quizIdLabel.textContent = quizId; }
+      show(r);
+    };
+
+    getQuizBtn.onclick = async () => {
+      if (!quizId) return show({error:'Generate a quiz first'});
+      show(await api(`/api/v1/quizzes/${quizId}`));
+    };
+
+    submitAttemptBtn.onclick = async () => {
+      if (!quizId) return show({error:'Generate a quiz first'});
+      show(await api(`/api/v1/quizzes/${quizId}/attempts`, {method:'POST', auth:true, body:{answers:[{questionId:`${quizId}-qq-1`,userAnswer:'A'}]}}));
+    };
+
+    progressBtn.onclick = async () => show(await api('/api/v1/progress/chapters', {auth:true}));
+  </script>
+</body>
+</html>
